@@ -30,19 +30,29 @@ function createImagesMarkup(galleryItems) {
 
 function onImagesContainerClick(event) {
   event.preventDefault();
-  if (!event.target.classList.contains("gallery__image")) {
+  if (event.target.nodeName !== "IMG") {
     return;
   }
+
   const selectedImage = event.target.dataset.source;
 
-  const instance = basicLightbox.create(`
-    <img src = "${selectedImage}" width = "800" height = "600">`);
+  const instance = basicLightbox.create(
+    `<img src = "${selectedImage}" width = "800" height = "600">`,
+    {
+      onShow: (instance) => {
+        window.addEventListener("keydown", onEscKeyPress);
+      },
+      onClose: (instance) => {
+        window.removeEventListener("keydown", onEscKeyPress);
+      },
+    }
+  );
 
   instance.show();
 
-  galleryContainer.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      instance.close();
-    }
-  });
+  function onEscKeyPress(e) {
+    if (e.code !== "Escape") return;
+
+    instance.close();
+  }
 }
